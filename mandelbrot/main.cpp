@@ -7,6 +7,7 @@
 #include "tga/tga.h"
 #include <string>
 #include <sstream>
+#include <ctime>
 
 using namespace std;
 
@@ -74,7 +75,10 @@ int main()
 	fout << imageWidth << " " << imageHeight << endl; // Dimensions
 	fout << "255" << endl; // lowerRightYmum value of a pixel R,G,B value...
 
-	// For every pixel...
+	//stopwatch
+	unsigned int start = clock();
+
+	// begin mandelbrot
 	for (int y = 0; y < imageHeight; y++) // Rows...
 	{
 		for (int x = 0; x < imageWidth; x++) // Pixels in row (columns)...
@@ -101,6 +105,8 @@ int main()
 	fout.close();
 
 	cout << "Finished!" << endl;
-	
+	// stop stopwatch
+	cout << "Time taken in millisecs: " << clock() - start << endl;
+	system("pause");
 	return 0;
 }
