@@ -4,14 +4,10 @@
 
 #include <fstream>
 #include <iostream>
-<<<<<<< HEAD
 #include "tga/tga.h"
-
-
-=======
 #include <string>
 #include <sstream>
->>>>>>> d4bf794244ebd648552685540c057864ce9f0dbe
+
 using namespace std;
 
 int findMandelbrot(double cr, double ci, int max_iterations)
@@ -43,9 +39,6 @@ double mapToImaginary(int y, int imageHeight, double leftUpperY, double lowerRig
 
 int main()
 {
-<<<<<<< HEAD
-	ifstream fin("input.txt");
-=======
 	string filename = "";
 	cout << "Please type filename: ";
 	cin >> filename;
@@ -60,7 +53,6 @@ int main()
 
 	// Get the required input values from file...
 	ifstream fin(inputfilename);
->>>>>>> d4bf794244ebd648552685540c057864ce9f0dbe
 	int imageWidth, imageHeight, maxN;
 	double leftUpperX, lowerRightX, leftUpperY, lowerRightY;
 
@@ -69,15 +61,6 @@ int main()
 		cout << "Could not open file!" << endl;
 		return 1;
 	}
-
-<<<<<<< HEAD
-	fin >> imageWidth >> imageHeight >> maxN;
-	fin >> minR >> maxR >> minI >> maxI;
-	fin.close();
-
-
-	ofstream fout("output_image.ppm");
-=======
 	fin >> imageWidth >> imageHeight ;
 	//Original: fin >> leftUpperX >> lowerRightX >> leftUpperY >> lowerRightY;
 	//Used: fin >> leftUpperX >> leftUpperY >> lowerRightX >> lowerRightY;
@@ -87,7 +70,6 @@ int main()
 
 	// Open the output file, write the PPM header...
 	ofstream fout(outputFilename);
->>>>>>> d4bf794244ebd648552685540c057864ce9f0dbe
 	fout << "P3" << endl; // "Magic Number" - PPM file
 	fout << imageWidth << " " << imageHeight << endl; // Dimensions
 	fout << "255" << endl; // lowerRightYmum value of a pixel R,G,B value...
