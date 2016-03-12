@@ -1,5 +1,8 @@
 #include <fstream>
-#include <iostream>>
+#include <iostream>
+#include "tga/tga.h"
+
+
 using namespace std;
 
 int findMandelbrot(double cr, double ci, int max_iterations)
@@ -31,7 +34,6 @@ double mapToImaginary(int y, int imageHeight, double minI, double maxI)
 
 int main()
 {
-	// Get the required input values from file...
 	ifstream fin("input.txt");
 	int imageWidth, imageHeight, maxN;
 	double minR, maxR, minI, maxI;
@@ -44,9 +46,9 @@ int main()
 
 	fin >> imageWidth >> imageHeight >> maxN;
 	fin >> minR >> maxR >> minI >> maxI;
-	fin.close(); // Not necessary, good practice :D
+	fin.close();
 
-	// Open the output file, write the PPM header...
+
 	ofstream fout("output_image.ppm");
 	fout << "P3" << endl; // "Magic Number" - PPM file
 	fout << imageWidth << " " << imageHeight << endl; // Dimensions
