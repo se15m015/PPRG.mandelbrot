@@ -74,6 +74,9 @@ int main()
 	const int numberOfMaxThreads = 4;
 
 	vector<int> threadParts[numberOfMaxThreads];
+	vector<int> image;
+	image.resize(imageWidth*imageHeight);
+
 	//// init vectors
 	//for (int i = 0; i < sizeof(threadParts); i++)
 	//{
@@ -105,7 +108,8 @@ int main()
 				// ... Find the number of iterations in the Mandelbrot formula
 				//     using said c.
 				int n = findMandelbrot(cr, ci, maxN);
-				threadParts[threadId].push_back(n % 256);
+				//threadParts[threadId].push_back(n % 256);
+				image.at(y*imageWidth + x) = (n % 256);
 				// ... Map the resulting number to an RGP value
 				//int r = (n % 256);
 				//int g = (n % 256);
@@ -135,23 +139,29 @@ int main()
 	//		image = th[i][i*numTh - i*numTh + width];
 	//}
 
-	// create image
-	for (int i = 0; i < (threadParts[0].size() / imageWidth); i++)
-	{
-		int from = i*imageWidth;
-		int to = (i + 1)*imageWidth - 1;
+	//// create image
+	//for (int i = 0; i < (threadParts[0].size() / imageWidth); i++)
+	//{
+	//	int from = i*imageWidth;
+	//	int to = (i + 1)*imageWidth - 1;
 
-		for (int j = 0; j < nrThreads; j++)
-		{
-			if (threadParts[j].size() > from)
-			{
-				for (vector<int>::iterator it = threadParts[j].begin()+from; it != threadParts[j].begin()+to; it++)
-				{
-					fout << *it << " " << *it << " " << *it << " ";
-				}
-			}
-		}
+	//	for (int j = 0; j < nrThreads; j++)
+	//	{
+	//		if (threadParts[j].size() > from)
+	//		{
+	//			for (vector<int>::iterator it = threadParts[j].begin()+from; it != threadParts[j].begin()+to; it++)
+	//			{
+	//				fout << *it << " " << *it << " " << *it << " ";
+	//			}
+	//		}
+	//	}
+	//}
+
+	for (vector<int>::iterator it = image.begin(); it != image.end(); it++)
+	{
+		fout << *it << " " << *it << " " << *it << " ";
 	}
+
 	fout << endl;
 	fout.close();
 
