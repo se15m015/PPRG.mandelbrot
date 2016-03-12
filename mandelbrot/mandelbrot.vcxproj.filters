@@ -19,4 +19,23 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="input.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="input.spec">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="mb0.spec">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="mb1.spec">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

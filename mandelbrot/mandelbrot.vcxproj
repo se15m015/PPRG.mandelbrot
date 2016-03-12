@@ -13,6 +13,15 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="input.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="input.spec" />
+    <None Include="Makefile" />
+    <None Include="mb0.spec" />
+    <None Include="mb1.spec" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{54C58F50-70F2-44FA-A49C-834591ECA401}</ProjectGuid>
     <RootNamespace>mandelbrot</RootNamespace>

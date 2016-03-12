@@ -1,5 +1,11 @@
+// Based on Youtube-Tutorial: https://www.youtube.com/watch?v=entjSp3LIfQ
+// Enhanced with openMP
+
+
 #include <fstream>
-#include <iostream>>
+#include <iostream>
+#include <string>
+#include <sstream>
 using namespace std;
 
 int findMandelbrot(double cr, double ci, int max_iterations)
@@ -17,24 +23,36 @@ int findMandelbrot(double cr, double ci, int max_iterations)
 	return i;
 }
 
-double mapToReal(int x, int imageWidth, double minR, double maxR)
+double mapToReal(int x, int imageWidth, double leftUpperX, double lowerRightX)
 {
-	double range = maxR - minR;
-	return x * (range / imageWidth) + minR;
+	double range = lowerRightX - leftUpperX;
+	return x * (range / imageWidth) + leftUpperX;
 }
 
-double mapToImaginary(int y, int imageHeight, double minI, double maxI)
+double mapToImaginary(int y, int imageHeight, double leftUpperY, double lowerRightY)
 {
-	double range = maxI - minI;
-	return y * (range / imageHeight) + minI;
+	double range = lowerRightY - leftUpperY;
+	return y * (range / imageHeight) + leftUpperY;
 }
 
 int main()
 {
+	string filename = "";
+	cout << "Please type filename: ";
+	cin >> filename;
+
+	if (filename == "x")
+	{
+		filename = "input";
+	}
+
+	string inputfilename = filename+".spec";
+	string outputFilename = filename + ".ppm";
+
 	// Get the required input values from file...
-	ifstream fin("input.txt");
+	ifstream fin(inputfilename);
 	int imageWidth, imageHeight, maxN;
-	double minR, maxR, minI, maxI;
+	double leftUpperX, lowerRightX, leftUpperY, lowerRightY;
 
 	if (!fin)
 	{
@@ -42,15 +60,18 @@ int main()
 		return 1;
 	}
 
-	fin >> imageWidth >> imageHeight >> maxN;
-	fin >> minR >> maxR >> minI >> maxI;
+	fin >> imageWidth >> imageHeight ;
+	//Original: fin >> leftUpperX >> lowerRightX >> leftUpperY >> lowerRightY;
+	//Used: fin >> leftUpperX >> leftUpperY >> lowerRightX >> lowerRightY;
+	fin >> leftUpperX >> leftUpperY >> lowerRightX >> lowerRightY; //rename
+	fin >> maxN;
 	fin.close(); // Not necessary, good practice :D
 
 	// Open the output file, write the PPM header...
-	ofstream fout("output_image.ppm");
+	ofstream fout(outputFilename);
 	fout << "P3" << endl; // "Magic Number" - PPM file
 	fout << imageWidth << " " << imageHeight << endl; // Dimensions
-	fout << "255" << endl; // Maximum value of a pixel R,G,B value...
+	fout << "255" << endl; // lowerRightYmum value of a pixel R,G,B value...
 
 	// For every pixel...
 	for (int y = 0; y < imageHeight; y++) // Rows...
@@ -59,8 +80,8 @@ int main()
 		{
 			// ... Find the real and imaginary values for c, corresponding to that
 			//     x, y pixel in the image.
-			double cr = mapToReal(x, imageWidth, minR, maxR);
-			double ci = mapToImaginary(y, imageHeight, minI, maxI);
+			double cr = mapToReal(x, imageWidth, leftUpperX, lowerRightX);
+			double ci = mapToImaginary(y, imageHeight, leftUpperY, lowerRightY);
 
 			// ... Find the number of iterations in the Mandelbrot formula
 			//     using said c.
@@ -79,5 +100,6 @@ int main()
 	fout.close();
 
 	cout << "Finished!" << endl;
+	
 	return 0;
 }
