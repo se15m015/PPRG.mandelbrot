@@ -8,6 +8,7 @@
 #include <string>
 #include <sstream>
 #include <ctime>
+#include <omp.h>
 
 using namespace std;
 
@@ -41,7 +42,7 @@ double mapToImaginary(int y, int imageHeight, double leftUpperY, double lowerRig
 int main()
 {
 	string filename = "";
-	cout << "Please type filename: ";
+	std::cout << "Please type filename: ";
 	cin >> filename;
 
 	if (filename == "x")
@@ -59,54 +60,104 @@ int main()
 
 	if (!fin)
 	{
-		cout << "Could not open file!" << endl;
+		std::cout << "Could not open file!" << endl;
 		return 1;
 	}
 	fin >> imageWidth >> imageHeight ;
-	//Original: fin >> leftUpperX >> lowerRightX >> leftUpperY >> lowerRightY;
-	//Used: fin >> leftUpperX >> leftUpperY >> lowerRightX >> lowerRightY;
-	fin >> leftUpperX >> leftUpperY >> lowerRightX >> lowerRightY; //rename
+	fin >> leftUpperX >> leftUpperY >> lowerRightX >> lowerRightY;
 	fin >> maxN;
-	fin.close(); // Not necessary, good practice :D
-
-	// Open the output file, write the PPM header...
-	ofstream fout(outputFilename);
-	fout << "P3" << endl; // "Magic Number" - PPM file
-	fout << imageWidth << " " << imageHeight << endl; // Dimensions
-	fout << "255" << endl; // lowerRightYmum value of a pixel R,G,B value...
+	fin.close();
 
 	//stopwatch
 	unsigned int start = clock();
 
-	// begin mandelbrot
-	for (int y = 0; y < imageHeight; y++) // Rows...
+	const int numberOfMaxThreads = 4;
+
+	vector<int> threadParts[numberOfMaxThreads];
+	//// init vectors
+	//for (int i = 0; i < sizeof(threadParts); i++)
+	//{
+	//}
+
+	omp_set_num_threads(numberOfMaxThreads);
+	int nrThreads;
+	#pragma omp parallel
 	{
-		for (int x = 0; x < imageWidth; x++) // Pixels in row (columns)...
+		int threadId;
+		#pragma omp barrier
 		{
-			// ... Find the real and imaginary values for c, corresponding to that
-			//     x, y pixel in the image.
-			double cr = mapToReal(x, imageWidth, leftUpperX, lowerRightX);
-			double ci = mapToImaginary(y, imageHeight, leftUpperY, lowerRightY);
-
-			// ... Find the number of iterations in the Mandelbrot formula
-			//     using said c.
-			int n = findMandelbrot(cr, ci, maxN);
-
-			// ... Map the resulting number to an RGP value
-			int r = (n % 256);
-			int g = (n % 256);
-			int b = (n % 256);
-
-			// ... Output it to an image
-			fout << r << " " << g << " " << b << " ";
+			threadId = omp_get_thread_num();
+			//get number of threats
+			if (threadId == 0) {
+				nrThreads = omp_get_num_threads();
+			}
 		}
-		fout << endl;
+		// begin mandelbrot
+		for (int y = threadId; y < imageHeight; y += omp_get_num_threads()) // Rows...
+		{
+			for (int x = 0; x < imageWidth; x++) // Pixels in row (columns)...
+			{
+				// ... Find the real and imaginary values for c, corresponding to that
+				//     x, y pixel in the image.
+				double cr = mapToReal(x, imageWidth, leftUpperX, lowerRightX);
+				double ci = mapToImaginary(y, imageHeight, leftUpperY, lowerRightY);
+
+				// ... Find the number of iterations in the Mandelbrot formula
+				//     using said c.
+				int n = findMandelbrot(cr, ci, maxN);
+				threadParts[threadId].push_back(n % 256);
+				// ... Map the resulting number to an RGP value
+				//int r = (n % 256);
+				//int g = (n % 256);
+				//int b = (n % 256);
+
+				//// ... Output it to an image
+				//fout << r << " " << g << " " << b << " ";
+			}
+			//fout << endl;
+		}
 	}
+	std::cout << "Time taken in millisecs for mandelcalculation: " << clock() - start << endl;
+	// Open the output file, write the PPM header...
+	ofstream fout(outputFilename);
+	fout << "P3" << endl; // "Magic Number" - PPM file
+	fout << imageWidth << " " << imageHeight << endl; // Dimensions
+	fout << "255" << endl; // lowerRightYmum value of a pixel R,G,B value..
+
+
+
+	//range = sizeof(th[0]) / w; // =6
+	//for (i = 0; i < sizeof(th[0]) / w; i++)
+	//{
+	//	from = i* w
+	//		to = (i + 1)*w - 1;
+	//	for ()
+	//		image = th[i][i*numTh - i*numTh + width];
+	//}
+
+	// create image
+	for (int i = 0; i < (threadParts[0].size() / imageWidth); i++)
+	{
+		int from = i*imageWidth;
+		int to = (i + 1)*imageWidth - 1;
+
+		for (int j = 0; j < nrThreads; j++)
+		{
+			if (threadParts[j].size() > from)
+			{
+				for (vector<int>::iterator it = threadParts[j].begin()+from; it != threadParts[j].begin()+to; it++)
+				{
+					fout << *it << " " << *it << " " << *it << " ";
+				}
+			}
+		}
+	}
+	fout << endl;
 	fout.close();
 
-	cout << "Finished!" << endl;
+	std::cout << "Finished!" << endl;
 	// stop stopwatch
-	cout << "Time taken in millisecs: " << clock() - start << endl;
-	system("pause");
+	std::cout << "Time taken in millisecs all: " << clock() - start << endl;
+	std::system("pause");
 	return 0;
 }

@@ -2,7 +2,7 @@
 #Figl, Winterhalder
 
 CPPOPT = /EHsc /D_CRT_SECURE_NO_DEPRECATE
-CPPFLAGS = -DESRI_WINDOWS $(CPPOPT)
+CPPFLAGS = -DESRI_WINDOWS /openmp $(CPPOPT)
 CPP = cl.exe
 
 all: mandelbrot
