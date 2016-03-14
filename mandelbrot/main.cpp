@@ -9,6 +9,7 @@
 #include <sstream>
 #include <ctime>
 #include <omp.h>
+//#include <GL/gl.h>
 
 using namespace std;
 
@@ -39,8 +40,57 @@ double mapToImaginary(int y, int imageHeight, double leftUpperY, double lowerRig
 	return y * (range / imageHeight) + leftUpperY;
 }
 
+void savePPMImage(string outputFilename, int imageWidth, int imageHeight, vector<int> image)
+{
+	// PPM File
+	ofstream fout(outputFilename);
+	fout << "P3" << endl; // "Magic Number" - PPM file
+	fout << imageWidth << " " << imageHeight << endl; // Dimensions
+	fout << "255" << endl; // lowerRightYmum value of a pixel R,G,B value..
+
+	for (vector<int>::iterator it = image.begin(); it != image.end(); it++)
+	{
+		fout << *it << " " << *it << " " << *it << " ";
+	}
+
+	fout << endl;
+	fout.close();
+	//PPM File end
+}
+
+//void saveTGAImage(const string &outputFilename, int imageWidth, int imageHeight, vector<unsigned char> image){
+void saveTGAImage(const string &outputFilename, int imageWidth, int imageHeight, vector<int> image){
+	vector<unsigned char> imageAsChar{};
+	imageAsChar.reserve(image.size() * 3);
+
+	//for (vector<int>::iterator it = image.end()-1; it != image.begin(); it--)
+	//{
+	//	imageAsChar.push_back(*it);
+	//	imageAsChar.push_back(*it);
+	//	imageAsChar.push_back(*it);
+	//}
+
+	for (auto pixel : image)
+	{
+		imageAsChar.push_back(pixel);
+		imageAsChar.push_back(pixel);
+		imageAsChar.push_back(pixel);
+	}
+
+	tga::TGAImage img = tga::TGAImage{ imageAsChar, 24, imageWidth, imageHeight, 0x1907 };
+	//const char* filename = outputFilename.c_str();
+	tga::saveTGA(img, outputFilename.c_str());
+	//tga::saveTGA(tga::TGAImage{ image, 24, imageWidth, imageHeight, 1 }, outputFilename.c_str());
+}
+
+enum filetype{
+	PPM,
+	TGA,
+};
+
 int main()
 {
+	filetype filetype = TGA;
 	string filename = "";
 	std::cout << "Please type filename: ";
 	cin >> filename;
@@ -50,8 +100,7 @@ int main()
 		filename = "input";
 	}
 
-	string inputfilename = filename+".spec";
-	string outputFilename = filename + ".ppm";
+	string inputfilename = filename+".spec";	
 
 	// Get the required input values from file...
 	ifstream fin(inputfilename);
@@ -76,11 +125,8 @@ int main()
 	vector<int> threadParts[numberOfMaxThreads];
 	vector<int> image;
 	image.resize(imageWidth*imageHeight);
-
-	//// init vectors
-	//for (int i = 0; i < sizeof(threadParts); i++)
-	//{
-	//}
+	vector<unsigned char> imageAsChar;
+	imageAsChar.resize(imageWidth*imageHeight*3);
 
 	omp_set_num_threads(numberOfMaxThreads);
 	int nrThreads;
@@ -106,64 +152,27 @@ int main()
 				double ci = mapToImaginary(y, imageHeight, leftUpperY, lowerRightY);
 
 				// ... Find the number of iterations in the Mandelbrot formula
-				//     using said c.
 				int n = findMandelbrot(cr, ci, maxN);
-				//threadParts[threadId].push_back(n % 256);
 				image.at(y*imageWidth + x) = (n % 256);
-				// ... Map the resulting number to an RGP value
-				//int r = (n % 256);
-				//int g = (n % 256);
-				//int b = (n % 256);
-
-				//// ... Output it to an image
-				//fout << r << " " << g << " " << b << " ";
+				imageAsChar.at(y*imageWidth + 3*x) = (n % 256);
+				imageAsChar.at(y*imageWidth + 3*x+1) = (n % 256);
+				imageAsChar.at(y*imageWidth + 3*x+2) = (n % 256);
 			}
-			//fout << endl;
 		}
 	}
 	std::cout << "Time taken in millisecs for mandelcalculation: " << clock() - start << endl;
-	// Open the output file, write the PPM header...
-	ofstream fout(outputFilename);
-	fout << "P3" << endl; // "Magic Number" - PPM file
-	fout << imageWidth << " " << imageHeight << endl; // Dimensions
-	fout << "255" << endl; // lowerRightYmum value of a pixel R,G,B value..
 
-
-
-	//range = sizeof(th[0]) / w; // =6
-	//for (i = 0; i < sizeof(th[0]) / w; i++)
-	//{
-	//	from = i* w
-	//		to = (i + 1)*w - 1;
-	//	for ()
-	//		image = th[i][i*numTh - i*numTh + width];
-	//}
-
-	//// create image
-	//for (int i = 0; i < (threadParts[0].size() / imageWidth); i++)
-	//{
-	//	int from = i*imageWidth;
-	//	int to = (i + 1)*imageWidth - 1;
-
-	//	for (int j = 0; j < nrThreads; j++)
-	//	{
-	//		if (threadParts[j].size() > from)
-	//		{
-	//			for (vector<int>::iterator it = threadParts[j].begin()+from; it != threadParts[j].begin()+to; it++)
-	//			{
-	//				fout << *it << " " << *it << " " << *it << " ";
-	//			}
-	//		}
-	//	}
-	//}
-
-	for (vector<int>::iterator it = image.begin(); it != image.end(); it++)
+	switch (filetype)
 	{
-		fout << *it << " " << *it << " " << *it << " ";
+		case PPM: 
+			savePPMImage(filename + ".ppm", imageWidth, imageHeight, image);
+			break;
+		case TGA:
+			saveTGAImage(filename + ".tga", imageWidth, imageHeight, image);
+			break;
+		default:
+			break;
 	}
-
-	fout << endl;
-	fout.close();
 
 	std::cout << "Finished!" << endl;
 	// stop stopwatch
