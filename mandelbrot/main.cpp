@@ -60,17 +60,21 @@ void savePPMImage(string outputFilename, int imageWidth, int imageHeight, vector
 
 //void saveTGAImage(const string &outputFilename, int imageWidth, int imageHeight, vector<unsigned char> image){
 void saveTGAImage(const string &outputFilename, int imageWidth, int imageHeight, vector<int> image){
+	//copy pixel for tga format
+	vector<int> imageMirrored{};
+	imageMirrored.resize(image.size());
+	for (int r = 0; r < image.size(); r+= imageWidth)
+	{
+		for (int p = 0; p < imageWidth; p++)
+		{
+			imageMirrored.at(r + p) = image.at(image.size() - (r+imageWidth) + p);
+		}
+	}
+
 	vector<unsigned char> imageAsChar{};
-	imageAsChar.reserve(image.size() * 3);
+	imageAsChar.reserve(imageMirrored.size() * 3);
 
-	//for (vector<int>::iterator it = image.end()-1; it != image.begin(); it--)
-	//{
-	//	imageAsChar.push_back(*it);
-	//	imageAsChar.push_back(*it);
-	//	imageAsChar.push_back(*it);
-	//}
-
-	for (auto pixel : image)
+	for (auto pixel : imageMirrored)
 	{
 		imageAsChar.push_back(pixel);
 		imageAsChar.push_back(pixel);
@@ -154,9 +158,6 @@ int main()
 				// ... Find the number of iterations in the Mandelbrot formula
 				int n = findMandelbrot(cr, ci, maxN);
 				image.at(y*imageWidth + x) = (n % 256);
-				imageAsChar.at(y*imageWidth + 3*x) = (n % 256);
-				imageAsChar.at(y*imageWidth + 3*x+1) = (n % 256);
-				imageAsChar.at(y*imageWidth + 3*x+2) = (n % 256);
 			}
 		}
 	}
