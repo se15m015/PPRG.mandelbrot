@@ -7,11 +7,14 @@ CPP = cl.exe
 
 all: mandelbrot
 
-mandelbrot: main.obj
-	link.exe /out:mandelbrot.exe main.obj
+mandelbrot: main.obj tga.obj
+	link.exe /out:mandelbrot.exe main.obj tga.obj
 	
 main.obj: main.cpp
 	$(CPP) $(CPPFLAGS) /c main.cpp
+	
+tga.obj: tga.cpp
+	$(CPP) $(CPPFLAGS) /c tga.cpp
 
 clean:
-	del mandelbrot.exe main.obj
+	del mandelbrot.exe main.obj tga.obj

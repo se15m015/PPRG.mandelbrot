@@ -4,7 +4,7 @@
 
 #include <fstream>
 #include <iostream>
-#include "tga/tga.h"
+#include "tga.h"
 #include <string>
 #include <sstream>
 #include <ctime>
