@@ -9,6 +9,7 @@
 #include <sstream>
 #include <ctime>
 #include <omp.h>
+
 //#include <GL/gl.h>
 
 using namespace std;
@@ -60,6 +61,28 @@ void savePPMImage(string outputFilename, int imageWidth, int imageHeight, vector
 
 //void saveTGAImage(const string &outputFilename, int imageWidth, int imageHeight, vector<unsigned char> image){
 void saveTGAImage(const string &outputFilename, int imageWidth, int imageHeight, vector<int> image){
+	//Color Mapping
+
+	int colorMapping[16][3] = {
+		{ 66, 30, 15 },
+		{ 25, 7, 26 },
+		{ 9, 1, 47 },
+		{ 4, 4, 73 },
+		{ 0, 7, 100 },
+		{ 12, 44, 138 },
+		{ 24, 82, 177 },
+		{ 57, 125, 209 },
+		{ 134, 181, 229 },
+		{ 211, 236, 248 },
+		{ 241, 233, 191 },
+		{ 248, 201, 95 },
+		{ 255, 170, 0 },
+		{ 204, 128, 0 },
+		{ 153, 87, 0 },
+		{ 106, 52, 3 }
+	};
+
+
 	//copy pixel for tga format
 	vector<int> imageMirrored{};
 	imageMirrored.resize(image.size());
@@ -76,15 +99,20 @@ void saveTGAImage(const string &outputFilename, int imageWidth, int imageHeight,
 
 	for (auto pixel : imageMirrored)
 	{
-		imageAsChar.push_back(pixel);
-		imageAsChar.push_back(pixel);
-		imageAsChar.push_back(pixel);
+		if (pixel >= 255){
+			imageAsChar.push_back(0);
+			imageAsChar.push_back(0);
+			imageAsChar.push_back(0);
+		}
+		else{
+			imageAsChar.push_back(colorMapping[pixel % 16][0]);
+			imageAsChar.push_back(colorMapping[pixel % 16][1]);
+			imageAsChar.push_back(colorMapping[pixel % 16][2]);
+		}
 	}
-
+	// 0x1907 = GL_RGB
 	tga::TGAImage img = tga::TGAImage{ imageAsChar, 24, imageWidth, imageHeight, 0x1907 };
-	//const char* filename = outputFilename.c_str();
 	tga::saveTGA(img, outputFilename.c_str());
-	//tga::saveTGA(tga::TGAImage{ image, 24, imageWidth, imageHeight, 1 }, outputFilename.c_str());
 }
 
 enum filetype{
@@ -157,7 +185,8 @@ int main()
 
 				// ... Find the number of iterations in the Mandelbrot formula
 				int n = findMandelbrot(cr, ci, maxN);
-				image.at(y*imageWidth + x) = (n % 256);
+				//image.at(y*imageWidth + x) = (n % 256);
+				image.at(y*imageWidth + x) = n;
 			}
 		}
 	}

@@ -18,7 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tga\tga.cpp">
+    <ClCompile Include="tga.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,7 +36,7 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tga\tga.h">
+    <ClInclude Include="tga.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

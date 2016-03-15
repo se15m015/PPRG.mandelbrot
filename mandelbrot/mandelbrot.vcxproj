@@ -12,7 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="tga\tga.cpp" />
+    <ClCompile Include="tga.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
@@ -22,7 +22,7 @@
     <Text Include="input.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tga\tga.h" />
+    <ClInclude Include="tga.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{54C58F50-70F2-44FA-A49C-834591ECA401}</ProjectGuid>
